@@ -40,6 +40,7 @@
               ...TubeFocusUtils.getDefaultSettings().categories,
               ...(result.tubefocus_settings.categories || {}),
             },
+            customCategories: result.tubefocus_settings.customCategories || [],
             stats: {
               ...TubeFocusUtils.getDefaultSettings().stats,
               ...(result.tubefocus_settings.stats || {}),
@@ -304,6 +305,7 @@
             ...TubeFocusUtils.getDefaultSettings().categories,
             ...(message.data.categories || {}),
           },
+          customCategories: message.data.customCategories || [],
           stats: {
             ...TubeFocusUtils.getDefaultSettings().stats,
             ...(message.data.stats || {}),

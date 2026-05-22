@@ -102,6 +102,21 @@
         <div class="categories-grid" id="categories-grid">
           <!-- Populated by JS -->
         </div>
+
+        <div class="section-title" style="margin-top: 20px;">Custom Categories</div>
+        <p class="section-desc">Create your own categories and specify keywords for them.</p>
+
+        <div class="category-creator" style="margin-bottom: 12px;">
+          <div class="keyword-input-row" style="margin-bottom: 0;">
+            <input type="text" id="custom-category-name" class="text-input" placeholder="Category name (e.g. Guitar, Cooking)">
+            <input type="text" id="custom-category-icon" class="text-input" style="max-width: 50px; text-align: center; padding: 10px 4px;" placeholder="Icon" value="🏷️" maxlength="2">
+            <button class="btn-add" id="btn-add-category" title="Create Category">+</button>
+          </div>
+        </div>
+
+        <div class="custom-categories-list" id="custom-categories-list" style="display: flex; flex-direction: column; gap: 10px;">
+          <!-- Populated by JS -->
+        </div>
       </div>
 
       <!-- SETTINGS TAB -->

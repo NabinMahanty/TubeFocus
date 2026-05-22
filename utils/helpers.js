@@ -149,6 +149,7 @@ const TubeFocusUtils = (() => {
         language_learning: false,
         finance: false,
       },
+      customCategories: [],
       customKeywords: [],
       whitelistedChannels: [],
       stats: {

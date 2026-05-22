@@ -34,6 +34,7 @@ chrome.runtime.onInstalled.addListener((details) => {
         language_learning: false,
         finance: false,
       },
+      customCategories: [],
       customKeywords: [],
       whitelistedChannels: [],
       stats: {

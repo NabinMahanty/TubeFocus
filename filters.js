@@ -343,6 +343,15 @@ const TubeFocusFilters = (() => {
       }
     }
 
+    // Add custom categories keywords
+    if (settings.customCategories && settings.customCategories.length > 0) {
+      for (const cat of settings.customCategories) {
+        if (cat.enabled && cat.keywords && cat.keywords.length > 0) {
+          allowedKeywords.push(...cat.keywords);
+        }
+      }
+    }
+
     // Add custom keywords
     if (settings.customKeywords && settings.customKeywords.length > 0) {
       allowedKeywords.push(...settings.customKeywords);
