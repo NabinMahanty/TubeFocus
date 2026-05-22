@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=400, initial-scale=1.0">
+  <title>TubeFocus — Distraction-Free YouTube</title>
+  <link rel="stylesheet" href="popup.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="popup-container" id="popup-container">
+
+    <!-- HEADER -->
+    <header class="header" id="header">
+      <div class="header-top">
+        <div class="logo-section">
+          <div class="logo-icon" id="logo-icon">
+            <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+              <circle cx="14" cy="14" r="13" stroke="url(#logoGrad)" stroke-width="2" fill="none"/>
+              <path d="M11 9.5L19 14L11 18.5V9.5Z" fill="url(#logoGrad)"/>
+              <defs>
+                <linearGradient id="logoGrad" x1="0" y1="0" x2="28" y2="28">
+                  <stop offset="0%" stop-color="#a855f7"/>
+                  <stop offset="100%" stop-color="#06b6d4"/>
+                </linearGradient>
+              </defs>
+            </svg>
+          </div>
+          <div class="logo-text">
+            <h1>TubeFocus</h1>
+            <span class="tagline">Distraction-free YouTube</span>
+          </div>
+        </div>
+        <div class="master-toggle" id="master-toggle-wrapper">
+          <label class="toggle-switch" for="master-toggle">
+            <input type="checkbox" id="master-toggle">
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+      </div>
+
+      <!-- FOCUS SCORE -->
+      <div class="focus-score-bar" id="focus-score-section">
+        <div class="score-info">
+          <span class="score-label">Focus Score</span>
+          <span class="score-value" id="focus-score">100</span>
+        </div>
+        <div class="score-track">
+          <div class="score-fill" id="focus-score-fill" style="width: 100%"></div>
+        </div>
+        <div class="stats-row">
+          <div class="stat-chip" id="stat-hidden">
+            <span class="stat-icon">🚫</span>
+            <span class="stat-val" id="stat-hidden-count">0</span>
+            <span class="stat-label">Hidden</span>
+          </div>
+          <div class="stat-chip" id="stat-sessions">
+            <span class="stat-icon">🎯</span>
+            <span class="stat-val" id="stat-sessions-count">0</span>
+            <span class="stat-label">Sessions</span>
+          </div>
+          <div class="stat-chip" id="stat-streak">
+            <span class="stat-icon">🔥</span>
+            <span class="stat-val" id="stat-streak-count">0</span>
+            <span class="stat-label">Streak</span>
+          </div>
+          <div class="stat-chip" id="stat-time">
+            <span class="stat-icon">⏱️</span>
+            <span class="stat-val" id="stat-time-count">0m</span>
+            <span class="stat-label">Focus</span>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- TAB NAVIGATION -->
+    <nav class="tab-nav" id="tab-nav">
+      <button class="tab-btn active" data-tab="categories" id="tab-categories-btn">
+        <span class="tab-icon">📚</span>
+        Categories
+      </button>
+      <button class="tab-btn" data-tab="settings" id="tab-settings-btn">
+        <span class="tab-icon">⚙️</span>
+        Settings
+      </button>
+      <button class="tab-btn" data-tab="pomodoro" id="tab-pomodoro-btn">
+        <span class="tab-icon">🍅</span>
+        Timer
+      </button>
+    </nav>
+
+    <!-- TAB PANELS -->
+    <div class="tab-panels">
+
+      <!-- CATEGORIES TAB -->
+      <div class="tab-panel active" id="panel-categories">
+        <div class="section-title">Content Categories</div>
+        <p class="section-desc">Select which topics to keep visible. Everything else will be filtered out.</p>
+
+        <div class="categories-grid" id="categories-grid">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+
+      <!-- SETTINGS TAB -->
+      <div class="tab-panel" id="panel-settings">
+
+        <!-- Quick Toggles -->
+        <div class="section-title">Quick Toggles</div>
+        <div class="settings-group">
+          <div class="setting-row" id="setting-hide-shorts">
+            <div class="setting-info">
+              <span class="setting-name">🚫 Hide Shorts</span>
+              <span class="setting-desc">Remove all YouTube Shorts content</span>
+            </div>
+            <label class="toggle-switch small" for="toggle-shorts">
+              <input type="checkbox" id="toggle-shorts">
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+          <div class="setting-row" id="setting-strict-mode">
+            <div class="setting-info">
+              <span class="setting-name">🛡️ Strict Mode</span>
+              <span class="setting-desc">Also hide blacklisted content (pranks, gaming, etc.)</span>
+            </div>
+            <label class="toggle-switch small" for="toggle-strict">
+              <input type="checkbox" id="toggle-strict">
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Custom Keywords -->
+        <div class="section-title" style="margin-top: 16px;">Custom Keywords</div>
+        <p class="section-desc">Add your own keywords to allow specific content through the filter.</p>
+        <div class="keyword-input-row" id="keyword-input-row">
+          <input type="text" id="keyword-input" class="text-input" placeholder="e.g. blockchain, quantum computing">
+          <button class="btn-add" id="btn-add-keyword">+</button>
+        </div>
+        <div class="tags-list" id="custom-keywords-list">
+          <!-- Populated by JS -->
+        </div>
+
+        <!-- Whitelisted Channels -->
+        <div class="section-title" style="margin-top: 16px;">Whitelisted Channels</div>
+        <p class="section-desc">Channels that are always shown, regardless of filters.</p>
+        <div class="keyword-input-row" id="channel-input-row">
+          <input type="text" id="channel-input" class="text-input" placeholder="e.g. 3Blue1Brown">
+          <button class="btn-add" id="btn-add-channel">+</button>
+        </div>
+        <div class="tags-list" id="whitelisted-channels-list">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+
+      <!-- POMODORO TAB -->
+      <div class="tab-panel" id="panel-pomodoro">
+        <div class="pomodoro-section" id="pomodoro-section">
+          <div class="pomodoro-display">
+            <div class="pomodoro-ring" id="pomodoro-ring">
+              <svg viewBox="0 0 160 160" class="pomodoro-svg">
+                <circle cx="80" cy="80" r="70" class="pomodoro-track"/>
+                <circle cx="80" cy="80" r="70" class="pomodoro-progress" id="pomodoro-progress"
+                        stroke-dasharray="439.82"
+                        stroke-dashoffset="0"/>
+              </svg>
+              <div class="pomodoro-time" id="pomodoro-time">25:00</div>
+              <div class="pomodoro-mode" id="pomodoro-mode">WORK</div>
+            </div>
+          </div>
+          <div class="pomodoro-controls">
+            <button class="pomodoro-btn" id="pomodoro-start">
+              <span id="pomodoro-start-icon">▶</span>
+              <span id="pomodoro-start-text">Start Focus</span>
+            </button>
+            <button class="pomodoro-btn secondary" id="pomodoro-reset">
+              <span>↺</span>
+              Reset
+            </button>
+          </div>
+          <div class="pomodoro-presets">
+            <button class="preset-btn active" data-minutes="25" id="preset-25">25m</button>
+            <button class="preset-btn" data-minutes="45" id="preset-45">45m</button>
+            <button class="preset-btn" data-minutes="60" id="preset-60">60m</button>
+            <button class="preset-btn" data-minutes="90" id="preset-90">90m</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- FOOTER -->
+    <footer class="footer" id="footer">
+      <span class="footer-text">TubeFocus v1.0 — Stay focused, learn more.</span>
+    </footer>
+
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

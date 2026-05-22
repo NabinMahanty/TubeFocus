@@ -1,0 +1,117 @@
+/**
+ * TubeFocus — Injected Stylesheet
+ * These styles are injected into YouTube pages via the content script.
+ * Handles hiding/showing video elements with smooth transitions,
+ * the focus banner, and visual overrides.
+ */
+
+/* ──────────────────────────────────────────────
+ * HIDDEN VIDEO TRANSITIONS
+ * We use opacity + height collapse for a smooth hide effect
+ * rather than display:none, which causes layout thrashing.
+ * ────────────────────────────────────────────── */
+
+.tubefocus-hidden {
+  opacity: 0 !important;
+  max-height: 0 !important;
+  overflow: hidden !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  pointer-events: none !important;
+  transition: opacity 0.25s ease, max-height 0.35s ease, margin 0.3s ease, padding 0.3s ease;
+  visibility: hidden !important;
+  position: absolute !important;
+  width: 0 !important;
+  height: 0 !important;
+}
+
+/* ──────────────────────────────────────────────
+ * FOCUS BANNER
+ * A subtle notification bar at the top of YouTube
+ * ────────────────────────────────────────────── */
+
+#tubefocus-banner {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 99999;
+  background: linear-gradient(135deg, #6c3ce0 0%, #3b82f6 50%, #06b6d4 100%);
+  color: #fff;
+  font-family: 'Segoe UI', 'Inter', -apple-system, sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  padding: 8px 16px;
+  box-shadow: 0 2px 12px rgba(108, 60, 224, 0.3);
+  animation: tubefocus-slideDown 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+#tubefocus-banner.tubefocus-banner-dismissed {
+  animation: tubefocus-slideUp 0.3s ease forwards;
+}
+
+.tubefocus-banner-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.tubefocus-banner-icon {
+  font-size: 16px;
+}
+
+.tubefocus-banner-text {
+  letter-spacing: 0.3px;
+}
+
+.tubefocus-banner-close {
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  color: #fff;
+  cursor: pointer;
+  font-size: 14px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s ease;
+  position: absolute;
+  right: 16px;
+  line-height: 1;
+}
+
+.tubefocus-banner-close:hover {
+  background: rgba(255, 255, 255, 0.35);
+}
+
+/* ──────────────────────────────────────────────
+ * ANIMATIONS
+ * ────────────────────────────────────────────── */
+
+@keyframes tubefocus-slideDown {
+  from {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes tubefocus-slideUp {
+  from {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+}
