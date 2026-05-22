@@ -834,6 +834,69 @@ input:checked + .toggle-slider::before {
   color: var(--accent-purple);
 }
 
+.pomodoro-custom {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  justify-content: center;
+  margin-top: -8px;
+}
+
+.pomodoro-custom input {
+  max-width: 80px !important;
+  text-align: center;
+  font-size: 13px;
+  height: 32px !important;
+  padding: 4px 8px !important;
+}
+
+.pomodoro-custom .btn-add {
+  height: 32px !important;
+  padding: 0 16px !important;
+  font-size: 12px;
+}
+
+.pomodoro-adjust-btn {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-full);
+  color: var(--text-primary);
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s var(--ease-smooth);
+}
+
+.pomodoro-adjust-btn:hover:not(:disabled) {
+  border-color: var(--accent-purple);
+  background: var(--bg-card-hover);
+  color: var(--accent-purple);
+}
+
+.pomodoro-adjust-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Hide native number input spinners */
+#pomodoro-custom-input::-webkit-outer-spin-button,
+#pomodoro-custom-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+#pomodoro-custom-input {
+  -moz-appearance: textfield;
+}
+
+
+
 /* ──────────────────────────────────────────────
  * FOOTER
  * ────────────────────────────────────────────── */

@@ -1,3 +1,5 @@
+importScripts('utils/helpers.js');
+
 /**
  * TubeFocus — Background Service Worker
  * Handles:
@@ -16,43 +18,7 @@ chrome.runtime.onInstalled.addListener((details) => {
     console.log('[TubeFocus] Extension installed. Setting defaults.');
 
     // Set default settings on first install
-    const defaults = {
-      enabled: false,
-      hideShorts: true,
-      strictMode: false,
-      categories: {
-        education: true,
-        programming: true,
-        upsc: false,
-        cds: false,
-        jee_neet: false,
-        ai_ml: true,
-        mathematics: false,
-        science: false,
-        productivity: true,
-        coding_interviews: false,
-        language_learning: false,
-        finance: false,
-      },
-      customCategories: [],
-      customKeywords: [],
-      whitelistedChannels: [],
-      stats: {
-        videosHidden: 0,
-        focusSessions: 0,
-        totalFocusMinutes: 0,
-        streak: 0,
-        lastActiveDate: null,
-      },
-      pomodoro: {
-        workMinutes: 25,
-        breakMinutes: 5,
-        isRunning: false,
-        endTime: null,
-        mode: 'work',
-      },
-    };
-
+    const defaults = TubeFocusUtils.getDefaultSettings();
     chrome.storage.sync.set({ tubefocus_settings: defaults });
   }
 

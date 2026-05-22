@@ -12,25 +12,10 @@
 (() => {
   'use strict';
 
-  /* ──────────────────────────────────────────────
-   * CATEGORY DEFINITIONS
-   * Each category has a display name, icon, and keyword count.
-   * ────────────────────────────────────────────── */
-
-  const CATEGORIES = [
-    { key: 'education',         name: 'Education',         icon: '📖', keywords: 30 },
-    { key: 'programming',       name: 'Programming',       icon: '💻', keywords: 55 },
-    { key: 'ai_ml',             name: 'AI & ML',           icon: '🤖', keywords: 40 },
-    { key: 'productivity',      name: 'Productivity',      icon: '🎯', keywords: 25 },
-    { key: 'science',           name: 'Science',           icon: '🔬', keywords: 30 },
-    { key: 'mathematics',       name: 'Mathematics',       icon: '📐', keywords: 25 },
-    { key: 'upsc',              name: 'UPSC / IAS',        icon: '🏛️', keywords: 30 },
-    { key: 'cds',               name: 'CDS / NDA',         icon: '🎖️', keywords: 15 },
-    { key: 'jee_neet',          name: 'JEE / NEET',        icon: '⚛️', keywords: 30 },
-    { key: 'coding_interviews', name: 'Coding Interviews', icon: '🧩', keywords: 20 },
-    { key: 'language_learning', name: 'Languages',         icon: '🌐', keywords: 15 },
-    { key: 'finance',           name: 'Finance',           icon: '💰', keywords: 25 },
-  ];
+  const EDIT_ICON_SVG = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 1 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>`;
+  const DELETE_ICON_SVG = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>`;
+  const SAVE_ICON_SVG = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>`;
+  const TAG_ICON_SVG = `<svg class="category-icon-svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path><line x1="7" y1="7" x2="7.01" y2="7"></line></svg>`;
 
   /* ──────────────────────────────────────────────
    * STATE
@@ -41,76 +26,13 @@
   let expandedCategories = {};
 
   /* ──────────────────────────────────────────────
-   * DEFAULT SETTINGS (mirrors helpers.js)
-   * ────────────────────────────────────────────── */
-
-  function getDefaultSettings() {
-    return {
-      enabled: false,
-      hideShorts: true,
-      strictMode: false,
-      categories: {
-        education: true,
-        programming: true,
-        upsc: false,
-        cds: false,
-        jee_neet: false,
-        ai_ml: true,
-        mathematics: false,
-        science: false,
-        productivity: true,
-        coding_interviews: false,
-        language_learning: false,
-        finance: false,
-      },
-      customCategories: [],
-      customKeywords: [],
-      whitelistedChannels: [],
-      stats: {
-        videosHidden: 0,
-        focusSessions: 0,
-        totalFocusMinutes: 0,
-        streak: 0,
-        lastActiveDate: null,
-      },
-      pomodoro: {
-        workMinutes: 25,
-        breakMinutes: 5,
-        isRunning: false,
-        endTime: null,
-        mode: 'work',
-      },
-    };
-  }
-
-  /* ──────────────────────────────────────────────
    * SETTINGS PERSISTENCE
    * ────────────────────────────────────────────── */
 
   async function loadSettings() {
     return new Promise((resolve) => {
       chrome.storage.sync.get('tubefocus_settings', (result) => {
-        if (result.tubefocus_settings) {
-          settings = {
-            ...getDefaultSettings(),
-            ...result.tubefocus_settings,
-            categories: {
-              ...getDefaultSettings().categories,
-              ...(result.tubefocus_settings.categories || {}),
-            },
-            customCategories: result.tubefocus_settings.customCategories || [],
-            stats: {
-              ...getDefaultSettings().stats,
-              ...(result.tubefocus_settings.stats || {}),
-            },
-            pomodoro: {
-              ...getDefaultSettings().pomodoro,
-              ...(result.tubefocus_settings.pomodoro || {}),
-            },
-          };
-        } else {
-          settings = getDefaultSettings();
-        }
+        settings = TubeFocusUtils.migrateSettings(result.tubefocus_settings);
         resolve(settings);
       });
     });
@@ -152,103 +74,66 @@
    * Populates the category grid with cards.
    */
   function renderCategories() {
-    const grid = document.getElementById('categories-grid');
-    grid.innerHTML = '';
-
-    for (const cat of CATEGORIES) {
-      const isActive = settings.categories[cat.key] || false;
-      const card = document.createElement('div');
-      card.className = `category-card${isActive ? ' active' : ''}`;
-      card.dataset.category = cat.key;
-      card.id = `category-${cat.key}`;
-      card.innerHTML = `
-        <input type="checkbox" ${isActive ? 'checked' : ''}>
-        <span class="category-icon">${cat.icon}</span>
-        <div class="category-info">
-          <div class="category-name">${cat.name}</div>
-          <div class="category-count">${cat.keywords}+ keywords</div>
-        </div>
-        <div class="category-check">
-          <svg viewBox="0 0 12 12" fill="none">
-            <path d="M2 6L5 9L10 3" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-        </div>
-      `;
-
-      card.addEventListener('click', () => {
-        const key = cat.key;
-        settings.categories[key] = !settings.categories[key];
-        card.classList.toggle('active');
-        card.querySelector('input').checked = settings.categories[key];
-        saveSettings();
-      });
-
-      grid.appendChild(card);
-    }
-  }
-
-  /**
-   * Renders the list of custom categories.
-   */
-  function renderCustomCategories() {
-    const container = document.getElementById('custom-categories-list');
+    const container = document.getElementById('categories-list');
     if (!container) return;
     container.innerHTML = '';
 
-    if (!settings.customCategories || settings.customCategories.length === 0) {
+    if (!settings.categoriesList || settings.categoriesList.length === 0) {
       container.innerHTML = `
         <div class="section-desc" style="text-align: center; padding: 12px; background: var(--bg-glass); border-radius: var(--radius-md);">
-          No custom categories yet. Create one above!
+          No categories available. Create one above!
         </div>
       `;
       return;
     }
 
-    for (const cat of settings.customCategories) {
+    for (const cat of settings.categoriesList) {
       const isExpanded = expandedCategories[cat.id] || false;
       const item = document.createElement('div');
       item.className = `custom-category-item${cat.enabled ? ' active' : ''}${isExpanded ? ' expanded' : ''}`;
-      item.id = `custom-cat-${cat.id}`;
+      item.id = `cat-item-${cat.id}`;
       
       const keywordCount = cat.keywords ? cat.keywords.length : 0;
       
       item.innerHTML = `
         <div class="custom-category-header" data-id="${cat.id}">
           <div class="custom-category-main">
-            <span class="custom-category-icon">${cat.icon || '🏷️'}</span>
-            <span class="custom-category-name">${cat.name}</span>
+            <span class="custom-category-icon">${TAG_ICON_SVG}</span>
+            <span class="custom-category-name" id="cat-name-text-${cat.id}">${cat.name}</span>
+            <input type="text" class="text-input edit-cat-name-input" id="cat-name-input-${cat.id}" value="${cat.name}" style="display: none; padding: 4px 8px; font-size: 13px; font-weight: 600; width: 120px; height: auto; margin: 0;">
             <span class="custom-category-badge">${keywordCount} keyword${keywordCount === 1 ? '' : 's'}</span>
             <span class="chevron-icon">▼</span>
           </div>
           <div class="custom-category-actions">
-            <label class="toggle-switch small" for="toggle-custom-cat-${cat.id}">
-              <input type="checkbox" id="toggle-custom-cat-${cat.id}" class="toggle-custom-cat" data-id="${cat.id}" ${cat.enabled ? 'checked' : ''}>
+            <button class="btn-icon edit-cat-btn" data-id="${cat.id}" title="Rename Category">${EDIT_ICON_SVG}</button>
+            <label class="toggle-switch small" for="toggle-cat-${cat.id}">
+              <input type="checkbox" id="toggle-cat-${cat.id}" class="toggle-cat" data-id="${cat.id}" ${cat.enabled ? 'checked' : ''}>
               <span class="toggle-slider"></span>
             </label>
-            <button class="btn-icon delete-custom-cat" data-id="${cat.id}" title="Delete Category">🗑️</button>
+            <button class="btn-icon delete-cat" data-id="${cat.id}" title="Delete Category">${DELETE_ICON_SVG}</button>
           </div>
         </div>
         
         <div class="custom-category-keywords-section ${isExpanded ? '' : 'collapsed'}" id="keywords-sec-${cat.id}" style="margin-top: 10px; padding-top: 10px; border-top: 1px dashed var(--border-subtle);">
           <div class="keyword-input-row" style="margin-bottom: 8px;">
-            <input type="text" class="text-input custom-cat-kw-input" data-id="${cat.id}" placeholder="Add keyword (e.g. chords, tutorial)">
-            <button class="btn-add small btn-add-custom-cat-kw" data-id="${cat.id}" style="width: 32px; height: 32px; font-size: 16px;">+</button>
+            <input type="text" class="text-input cat-kw-input" data-id="${cat.id}" placeholder="Add keyword (e.g. chords, tutorial)">
+            <button class="btn-add small btn-add-cat-kw" data-id="${cat.id}" style="width: 32px; height: 32px; font-size: 16px;">+</button>
           </div>
-          <div class="tags-list custom-cat-tags-list" data-id="${cat.id}">
+          <div class="tags-list cat-tags-list" data-id="${cat.id}">
             <!-- Tags for this category -->
           </div>
         </div>
       `;
 
-      // Render tags for keywords in this custom category
-      const tagsContainer = item.querySelector('.custom-cat-tags-list');
+      // Render tags for keywords in this category
+      const tagsContainer = item.querySelector('.cat-tags-list');
       if (cat.keywords && cat.keywords.length > 0) {
         for (const kw of cat.keywords) {
           const tag = document.createElement('span');
           tag.className = 'tag';
           tag.innerHTML = `
             ${kw}
-            <button class="tag-remove custom-cat-tag-remove" data-id="${cat.id}" data-keyword="${kw}">✕</button>
+            <button class="tag-remove cat-tag-remove" data-id="${cat.id}" data-keyword="${kw}">✕</button>
           `;
           tagsContainer.appendChild(tag);
         }
@@ -257,14 +142,18 @@
       // 1. Expand/collapse listener (clicking the main header area)
       const mainHeader = item.querySelector('.custom-category-main');
       mainHeader.addEventListener('click', (e) => {
+        // Only expand/collapse if not editing name
+        const nameInput = item.querySelector(`#cat-name-input-${cat.id}`);
+        if (nameInput.style.display !== 'none') return;
+
         expandedCategories[cat.id] = !expandedCategories[cat.id];
         const keywordsSection = item.querySelector('.custom-category-keywords-section');
         keywordsSection.classList.toggle('collapsed');
         item.classList.toggle('expanded');
       });
 
-      // 2. Toggle custom category listener
-      const toggle = item.querySelector('.toggle-custom-cat');
+      // 2. Toggle category listener
+      const toggle = item.querySelector('.toggle-cat');
       toggle.addEventListener('change', (e) => {
         e.stopPropagation();
         cat.enabled = e.target.checked;
@@ -277,21 +166,21 @@
         e.stopPropagation();
       });
 
-      // 3. Delete custom category listener
-      const deleteBtn = item.querySelector('.delete-custom-cat');
+      // 3. Delete category listener
+      const deleteBtn = item.querySelector('.delete-cat');
       deleteBtn.addEventListener('click', (e) => {
         e.stopPropagation();
-        settings.customCategories = settings.customCategories.filter(c => c.id !== cat.id);
+        settings.categoriesList = settings.categoriesList.filter(c => c.id !== cat.id);
         delete expandedCategories[cat.id];
         saveSettings();
-        renderCustomCategories();
+        renderCategories();
       });
 
-      // 4. Add custom category keyword listener
-      const kwInput = item.querySelector('.custom-cat-kw-input');
-      const addKwBtn = item.querySelector('.btn-add-custom-cat-kw');
+      // 4. Add category keyword listener
+      const kwInput = item.querySelector('.cat-kw-input');
+      const addKwBtn = item.querySelector('.btn-add-cat-kw');
 
-      function addCustomKeyword() {
+      function addCategoryKeyword() {
         const raw = kwInput.value.trim();
         if (!raw) return;
         
@@ -306,12 +195,12 @@
 
         kwInput.value = '';
         saveSettings();
-        renderCustomCategories();
+        renderCategories();
       }
 
       addKwBtn.addEventListener('click', (e) => {
         e.stopPropagation();
-        addCustomKeyword();
+        addCategoryKeyword();
       });
 
       kwInput.addEventListener('click', (e) => {
@@ -321,19 +210,67 @@
       kwInput.addEventListener('keydown', (e) => {
         e.stopPropagation();
         if (e.key === 'Enter') {
-          addCustomKeyword();
+          addCategoryKeyword();
         }
       });
 
-      // 5. Remove custom category keyword listener
-      item.querySelectorAll('.custom-cat-tag-remove').forEach((btn) => {
+      // 5. Remove category keyword listener
+      item.querySelectorAll('.cat-tag-remove').forEach((btn) => {
         btn.addEventListener('click', (e) => {
           e.stopPropagation();
           const kw = btn.dataset.keyword;
           cat.keywords = cat.keywords.filter(k => k !== kw);
           saveSettings();
-          renderCustomCategories();
+          renderCategories();
         });
+      });
+
+      // 6. Rename listener
+      const editBtn = item.querySelector('.edit-cat-btn');
+      const nameText = item.querySelector(`#cat-name-text-${cat.id}`);
+      const nameInput = item.querySelector(`#cat-name-input-${cat.id}`);
+
+      editBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const isEditing = nameInput.style.display !== 'none';
+        if (isEditing) {
+          // Save the changes
+          const newName = nameInput.value.trim();
+          if (newName) {
+            cat.name = newName;
+            nameText.textContent = newName;
+            saveSettings();
+          }
+          nameInput.style.display = 'none';
+          nameText.style.display = '';
+          editBtn.innerHTML = EDIT_ICON_SVG;
+          editBtn.title = 'Rename Category';
+        } else {
+          // Enter editing mode
+          nameText.style.display = 'none';
+          nameInput.style.display = '';
+          nameInput.focus();
+          nameInput.select();
+          editBtn.innerHTML = SAVE_ICON_SVG;
+          editBtn.title = 'Save Name';
+        }
+      });
+
+      nameInput.addEventListener('click', (e) => {
+        e.stopPropagation();
+      });
+
+      nameInput.addEventListener('keydown', (e) => {
+        e.stopPropagation();
+        if (e.key === 'Enter') {
+          editBtn.click();
+        } else if (e.key === 'Escape') {
+          nameInput.value = cat.name;
+          nameInput.style.display = 'none';
+          nameText.style.display = '';
+          editBtn.innerHTML = EDIT_ICON_SVG;
+          editBtn.title = 'Rename Category';
+        }
       });
 
       container.appendChild(item);
@@ -424,9 +361,30 @@
   }
 
   /**
+   * Applies the saved theme (light or dark) to the page body.
+   */
+  function applyTheme() {
+    const isLight = settings.theme === 'light';
+    document.body.classList.toggle('light-theme', isLight);
+    
+    const sunIcon = document.querySelector('.sun-icon');
+    const moonIcon = document.querySelector('.moon-icon');
+    if (sunIcon && moonIcon) {
+      if (isLight) {
+        sunIcon.style.display = 'none';
+        moonIcon.style.display = 'block';
+      } else {
+        sunIcon.style.display = 'block';
+        moonIcon.style.display = 'none';
+      }
+    }
+  }
+
+  /**
    * Syncs UI state with current settings.
    */
   function syncUI() {
+    applyTheme();
     const container = document.getElementById('popup-container');
     const masterToggle = document.getElementById('master-toggle');
 
@@ -442,7 +400,6 @@
     document.getElementById('toggle-strict').checked = settings.strictMode;
 
     renderCategories();
-    renderCustomCategories();
     renderCustomKeywords();
     renderWhitelistedChannels();
     updateStats(null);
@@ -454,6 +411,16 @@
    * ────────────────────────────────────────────── */
 
   function setupEventListeners() {
+    // Theme toggle
+    const themeBtn = document.getElementById('theme-toggle-btn');
+    if (themeBtn) {
+      themeBtn.addEventListener('click', () => {
+        settings.theme = settings.theme === 'light' ? 'dark' : 'light';
+        applyTheme();
+        saveSettings();
+      });
+    }
+
     // Master toggle
     document.getElementById('master-toggle').addEventListener('change', (e) => {
       settings.enabled = e.target.checked;
@@ -561,17 +528,79 @@
         document.querySelectorAll('.preset-btn').forEach((b) => b.classList.remove('active'));
         btn.classList.add('active');
 
+        // Sync custom input value
+        const customInput = document.getElementById('pomodoro-custom-input');
+        if (customInput) customInput.value = minutes;
+
         updatePomodoroDisplay(minutes * 60);
         saveSettings();
       });
     });
 
+    // Custom Pomodoro duration
+    const pomodoroCustomInput = document.getElementById('pomodoro-custom-input');
+    const applyCustomPomodoroBtn = document.getElementById('btn-apply-custom-pomodoro');
+
+    if (pomodoroCustomInput && applyCustomPomodoroBtn) {
+      const applyCustomTimer = () => {
+        if (settings.pomodoro.isRunning) return;
+
+        const val = parseInt(pomodoroCustomInput.value, 10);
+        if (isNaN(val) || val < 1 || val > 1440) {
+          pomodoroCustomInput.classList.add('shake');
+          setTimeout(() => pomodoroCustomInput.classList.remove('shake'), 400);
+          return;
+        }
+
+        settings.pomodoro.workMinutes = val;
+
+        // Sync presets to show active if matching
+        document.querySelectorAll('.preset-btn').forEach((btn) => {
+          btn.classList.toggle('active', parseInt(btn.dataset.minutes, 10) === val);
+        });
+
+        updatePomodoroDisplay(val * 60);
+        saveSettings();
+      };
+
+      applyCustomPomodoroBtn.addEventListener('click', applyCustomTimer);
+      pomodoroCustomInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          applyCustomTimer();
+        }
+      });
+
+      // Plus/Minus adjust button listeners
+      const btnMinus = document.getElementById('btn-pomodoro-minus');
+      const btnPlus = document.getElementById('btn-pomodoro-plus');
+      if (btnMinus && btnPlus) {
+        btnMinus.addEventListener('click', (e) => {
+          e.stopPropagation();
+          if (settings.pomodoro.isRunning) return;
+          let val = parseInt(pomodoroCustomInput.value, 10);
+          if (isNaN(val)) val = settings.pomodoro.workMinutes;
+          if (val > 1) {
+            pomodoroCustomInput.value = val - 1;
+          }
+        });
+
+        btnPlus.addEventListener('click', (e) => {
+          e.stopPropagation();
+          if (settings.pomodoro.isRunning) return;
+          let val = parseInt(pomodoroCustomInput.value, 10);
+          if (isNaN(val)) val = settings.pomodoro.workMinutes;
+          if (val < 1440) {
+            pomodoroCustomInput.value = val + 1;
+          }
+        });
+      }
+    }
+
     // Custom Category Creator Listeners
     const catNameInput = document.getElementById('custom-category-name');
-    const catIconInput = document.getElementById('custom-category-icon');
     const addCatBtn = document.getElementById('btn-add-category');
 
-    if (catNameInput && catIconInput && addCatBtn) {
+    if (catNameInput && addCatBtn) {
       const createCustomCategory = () => {
         const name = catNameInput.value.trim();
         if (!name) {
@@ -580,28 +609,25 @@
           return;
         }
 
-        const icon = catIconInput.value.trim() || '🏷️';
-        
         const newCat = {
           id: 'cat_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 5),
           name: name,
-          icon: icon,
+          icon: '🏷️',
           keywords: [],
           enabled: true
         };
 
-        if (!settings.customCategories) {
-          settings.customCategories = [];
+        if (!settings.categoriesList) {
+          settings.categoriesList = [];
         }
 
-        settings.customCategories.push(newCat);
+        settings.categoriesList.push(newCat);
         expandedCategories[newCat.id] = true;
 
         catNameInput.value = '';
-        catIconInput.value = '🏷️';
 
         saveSettings();
-        renderCustomCategories();
+        renderCategories();
       };
 
       addCatBtn.addEventListener('click', createCustomCategory);
@@ -754,7 +780,29 @@
   }
 
   function syncPomodoroUI() {
-    if (settings.pomodoro.isRunning && settings.pomodoro.endTime) {
+    const isRunning = settings.pomodoro.isRunning;
+    const customInput = document.getElementById('pomodoro-custom-input');
+    const customBtn = document.getElementById('btn-apply-custom-pomodoro');
+    const btnMinus = document.getElementById('btn-pomodoro-minus');
+    const btnPlus = document.getElementById('btn-pomodoro-plus');
+
+    if (customInput) {
+      customInput.disabled = isRunning;
+      if (!isRunning) {
+        customInput.value = settings.pomodoro.workMinutes;
+      }
+    }
+    if (customBtn) {
+      customBtn.disabled = isRunning;
+    }
+    if (btnMinus) {
+      btnMinus.disabled = isRunning;
+    }
+    if (btnPlus) {
+      btnPlus.disabled = isRunning;
+    }
+
+    if (isRunning && settings.pomodoro.endTime) {
       const remaining = settings.pomodoro.endTime - Date.now();
       if (remaining > 0) {
         startPomodoroCountdown(settings.pomodoro.endTime);
@@ -769,10 +817,20 @@
     } else {
       updatePomodoroDisplay(settings.pomodoro.workMinutes * 60);
       updatePomodoroProgress(1);
+
+      const btn = document.getElementById('pomodoro-start');
+      if (btn) {
+        btn.classList.remove('running');
+        document.getElementById('pomodoro-start-icon').textContent = '▶';
+        document.getElementById('pomodoro-start-text').textContent = 'Start Focus';
+      }
     }
 
     // Sync preset buttons
     document.querySelectorAll('.preset-btn').forEach((btn) => {
+      btn.disabled = isRunning;
+      btn.style.opacity = isRunning ? '0.5' : '1';
+      btn.style.cursor = isRunning ? 'not-allowed' : 'pointer';
       btn.classList.toggle('active', parseInt(btn.dataset.minutes, 10) === settings.pomodoro.workMinutes);
     });
 

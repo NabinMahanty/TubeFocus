@@ -31,26 +31,7 @@
   async function loadSettings() {
     return new Promise((resolve) => {
       chrome.storage.sync.get('tubefocus_settings', (result) => {
-        if (result.tubefocus_settings) {
-          // Merge with defaults so new fields are always present
-          currentSettings = {
-            ...TubeFocusUtils.getDefaultSettings(),
-            ...result.tubefocus_settings,
-            categories: {
-              ...TubeFocusUtils.getDefaultSettings().categories,
-              ...(result.tubefocus_settings.categories || {}),
-            },
-            customCategories: result.tubefocus_settings.customCategories || [],
-            stats: {
-              ...TubeFocusUtils.getDefaultSettings().stats,
-              ...(result.tubefocus_settings.stats || {}),
-            },
-            pomodoro: {
-              ...TubeFocusUtils.getDefaultSettings().pomodoro,
-              ...(result.tubefocus_settings.pomodoro || {}),
-            },
-          };
-        }
+        currentSettings = TubeFocusUtils.migrateSettings(result.tubefocus_settings);
         resolve(currentSettings);
       });
     });
@@ -298,23 +279,7 @@
     switch (message.type) {
       case 'SETTINGS_UPDATED':
         // Popup sent new settings — apply immediately
-        currentSettings = {
-          ...TubeFocusUtils.getDefaultSettings(),
-          ...message.data,
-          categories: {
-            ...TubeFocusUtils.getDefaultSettings().categories,
-            ...(message.data.categories || {}),
-          },
-          customCategories: message.data.customCategories || [],
-          stats: {
-            ...TubeFocusUtils.getDefaultSettings().stats,
-            ...(message.data.stats || {}),
-          },
-          pomodoro: {
-            ...TubeFocusUtils.getDefaultSettings().pomodoro,
-            ...(message.data.pomodoro || {}),
-          },
-        };
+        currentSettings = TubeFocusUtils.migrateSettings(message.data);
         // Re-scan immediately
         scanAndFilterVideos();
         injectFocusBanner();

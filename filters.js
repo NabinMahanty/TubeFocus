@@ -337,15 +337,8 @@ const TubeFocusFilters = (() => {
 
     // Build allowed keywords from enabled categories
     const allowedKeywords = [];
-    for (const [category, enabled] of Object.entries(settings.categories)) {
-      if (enabled && CATEGORY_KEYWORDS[category]) {
-        allowedKeywords.push(...CATEGORY_KEYWORDS[category]);
-      }
-    }
-
-    // Add custom categories keywords
-    if (settings.customCategories && settings.customCategories.length > 0) {
-      for (const cat of settings.customCategories) {
+    if (settings.categoriesList && settings.categoriesList.length > 0) {
+      for (const cat of settings.categoriesList) {
         if (cat.enabled && cat.keywords && cat.keywords.length > 0) {
           allowedKeywords.push(...cat.keywords);
         }

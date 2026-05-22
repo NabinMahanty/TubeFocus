@@ -125,6 +125,197 @@ const TubeFocusUtils = (() => {
     }
   }
 
+  const DEFAULT_CATEGORIES = [
+    {
+      id: 'education',
+      name: 'Education',
+      icon: '📖',
+      enabled: true,
+      keywords: [
+        'tutorial', 'course', 'lecture', 'lesson', 'educational', 'learn',
+        'study', 'teaching', 'teacher', 'professor', 'class', 'academy',
+        'explained', 'explanation', 'how to', 'guide', 'workshop',
+        'training', 'fundamentals', 'basics', 'introduction to', 'intro to',
+        'bootcamp', 'masterclass', 'deep dive', 'crash course',
+        'khan academy', 'mit opencourseware', 'edx', 'coursera',
+        'unacademy', 'byju', 'vedantu', 'nptel', 'skillshare',
+      ]
+    },
+    {
+      id: 'programming',
+      name: 'Programming',
+      icon: '💻',
+      enabled: true,
+      keywords: [
+        'programming', 'coding', 'code', 'developer', 'development',
+        'software', 'web dev', 'frontend', 'backend', 'full stack',
+        'fullstack', 'python', 'javascript', 'typescript', 'java', 'c++',
+        'rust', 'golang', 'react', 'angular', 'vue', 'node.js', 'nodejs',
+        'django', 'flask', 'spring boot', 'docker', 'kubernetes',
+        'devops', 'git', 'github', 'api', 'rest api', 'graphql',
+        'database', 'sql', 'mongodb', 'redis', 'aws', 'azure', 'gcp',
+        'cloud computing', 'microservices', 'system design',
+        'data structures', 'algorithms', 'leetcode', 'hackerrank',
+        'freecodecamp', 'traversy media', 'fireship', 'tech with tim',
+        'corey schafer', 'sentdex', 'the coding train',
+        'html', 'css', 'tailwind', 'next.js', 'nextjs', 'vite',
+        'webpack', 'compiler', 'interpreter', 'debugging', 'testing',
+        'unit test', 'ci cd', 'linux', 'terminal', 'command line',
+      ]
+    },
+    {
+      id: 'upsc',
+      name: 'UPSC / IAS',
+      icon: '🏛️',
+      enabled: false,
+      keywords: [
+        'upsc', 'ias', 'ips', 'civil services', 'prelims', 'mains',
+        'upsc preparation', 'upsc strategy', 'polity', 'indian polity',
+        'laxmikant', 'indian economy', 'geography ncert', 'history ncert',
+        'current affairs', 'general studies', 'csat', 'essay upsc',
+        'upsc interview', 'optional subject', 'public administration',
+        'drishti ias', 'vision ias', 'insights ias', 'vajiram',
+        'shankar ias', 'byjus ias', 'unacademy upsc',
+        'indian constitution', 'governance', 'international relations',
+      ]
+    },
+    {
+      id: 'cds',
+      name: 'CDS / NDA',
+      icon: '🎖️',
+      enabled: false,
+      keywords: [
+        'cds exam', 'cds preparation', 'combined defence services',
+        'nda exam', 'nda preparation', 'indian army', 'indian navy',
+        'indian air force', 'defence exam', 'ssb interview',
+        'military', 'defence studies', 'afcat', 'capf',
+        'territorial army', 'officer training',
+      ]
+    },
+    {
+      id: 'jee_neet',
+      name: 'JEE / NEET',
+      icon: '⚛️',
+      enabled: false,
+      keywords: [
+        'jee', 'jee mains', 'jee advanced', 'neet', 'neet preparation',
+        'iit', 'iit jee', 'physics wallah', 'allen', 'resonance',
+        'fiitjee', 'aakash', 'organic chemistry', 'inorganic chemistry',
+        'physical chemistry', 'mechanics', 'thermodynamics',
+        'electrodynamics', 'optics', 'modern physics', 'biology neet',
+        'botany', 'zoology', 'ncert solutions', 'hc verma',
+        'irodov', 'cengage', 'dc pandey', 'ms chauhan',
+      ]
+    },
+    {
+      id: 'ai_ml',
+      name: 'AI & ML',
+      icon: '🤖',
+      enabled: true,
+      keywords: [
+        'artificial intelligence', 'machine learning', 'deep learning',
+        'neural network', 'natural language processing', 'nlp',
+        'computer vision', 'reinforcement learning', 'tensorflow',
+        'pytorch', 'keras', 'scikit-learn', 'data science',
+        'data analysis', 'data engineering', 'big data', 'pandas',
+        'numpy', 'matplotlib', 'jupyter', 'kaggle', 'hugging face',
+        'transformer', 'bert', 'gpt', 'llm', 'large language model',
+        'generative ai', 'stable diffusion', 'midjourney',
+        'openai', 'google deepmind', 'research paper',
+        'arxiv', 'ai news', 'ml ops', 'mlops', 'feature engineering',
+        'model training', 'fine tuning', 'prompt engineering',
+        'rag', 'vector database', 'embeddings', 'langchain',
+      ]
+    },
+    {
+      id: 'mathematics',
+      name: 'Mathematics',
+      icon: '📐',
+      enabled: false,
+      keywords: [
+        'mathematics', 'math', 'maths', 'calculus', 'algebra',
+        'linear algebra', 'statistics', 'probability', 'geometry',
+        'trigonometry', 'differential equations', 'discrete math',
+        'number theory', 'combinatorics', 'topology',
+        'mathematical', 'theorem', 'proof', 'equation',
+        '3blue1brown', 'mathologer', 'numberphile', 'blackpenredpen',
+        'professor leonard', 'khan academy math',
+      ]
+    },
+    {
+      id: 'science',
+      name: 'Science',
+      icon: '🔬',
+      enabled: false,
+      keywords: [
+        'science', 'physics', 'chemistry', 'biology', 'astronomy',
+        'astrophysics', 'quantum', 'quantum mechanics', 'relativity',
+        'evolution', 'genetics', 'microbiology', 'biochemistry',
+        'neuroscience', 'ecology', 'geology', 'meteorology',
+        'experiment', 'research', 'scientific', 'laboratory',
+        'veritasium', 'vsauce', 'kurzgesagt', 'minutephysics',
+        'smarter every day', 'mark rober', 'science channel',
+        'national geographic', 'discovery', 'cosmos',
+      ]
+    },
+    {
+      id: 'productivity',
+      name: 'Productivity',
+      icon: '🎯',
+      enabled: true,
+      keywords: [
+        'productivity', 'time management', 'study tips', 'study with me',
+        'pomodoro', 'goal setting', 'habit', 'morning routine',
+        'organization', 'planning', 'bullet journal', 'notion',
+        'obsidian', 'second brain', 'note taking', 'focus',
+        'deep work', 'atomic habits', 'self improvement',
+        'self discipline', 'motivation', 'mindfulness', 'meditation',
+        'ali abdaal', 'thomas frank', 'matt d\'avella',
+      ]
+    },
+    {
+      id: 'coding_interviews',
+      name: 'Coding Interviews',
+      icon: '🧩',
+      enabled: false,
+      keywords: [
+        'coding interview', 'technical interview', 'system design interview',
+        'behavioral interview', 'faang', 'maang', 'google interview',
+        'amazon interview', 'meta interview', 'apple interview',
+        'microsoft interview', 'dsa', 'competitive programming',
+        'codeforces', 'atcoder', 'interview preparation',
+        'resume tips', 'portfolio', 'neetcode', 'striver',
+        'take u forward', 'love babbar', 'apna college',
+      ]
+    },
+    {
+      id: 'language_learning',
+      name: 'Languages',
+      icon: '🌐',
+      enabled: false,
+      keywords: [
+        'language learning', 'english speaking', 'english grammar',
+        'ielts', 'toefl', 'duolingo', 'spanish', 'french', 'german',
+        'japanese', 'korean', 'mandarin', 'vocabulary', 'pronunciation',
+        'conversation practice', 'polyglot', 'language course',
+      ]
+    },
+    {
+      id: 'finance',
+      name: 'Finance',
+      icon: '💰',
+      enabled: false,
+      keywords: [
+        'finance', 'investing', 'stock market', 'mutual fund',
+        'personal finance', 'budgeting', 'financial planning',
+        'cryptocurrency', 'bitcoin', 'ethereum', 'trading',
+        'passive income', 'wealth', 'tax planning', 'insurance',
+        'ca foundation', 'chartered accountant', 'economics',
+        'macroeconomics', 'microeconomics', 'gdp', 'inflation',
+      ]
+    }
+  ];
+
   /**
    * Returns the default settings object for TubeFocus.
    * Used when no stored preferences exist.
@@ -133,23 +324,10 @@ const TubeFocusUtils = (() => {
   function getDefaultSettings() {
     return {
       enabled: false,
+      theme: 'dark',
       hideShorts: true,
       strictMode: false,
-      categories: {
-        education: true,
-        programming: true,
-        upsc: false,
-        cds: false,
-        jee_neet: false,
-        ai_ml: true,
-        mathematics: false,
-        science: false,
-        productivity: true,
-        coding_interviews: false,
-        language_learning: false,
-        finance: false,
-      },
-      customCategories: [],
+      categoriesList: JSON.parse(JSON.stringify(DEFAULT_CATEGORIES)),
       customKeywords: [],
       whitelistedChannels: [],
       stats: {
@@ -164,7 +342,63 @@ const TubeFocusUtils = (() => {
         breakMinutes: 5,
         isRunning: false,
         endTime: null,
-        mode: 'work', // 'work' or 'break'
+        mode: 'work',
+      },
+    };
+  }
+
+  /**
+   * Migrates older settings schemas to the unified categoriesList schema.
+   */
+  function migrateSettings(rawSettings) {
+    if (!rawSettings) return getDefaultSettings();
+
+    let categoriesList = rawSettings.categoriesList;
+    if (!categoriesList) {
+      categoriesList = [];
+
+      // 1. Convert old default categories using their old toggle states
+      const defaults = DEFAULT_CATEGORIES;
+      for (const defaultCat of defaults) {
+        const wasEnabled = rawSettings.categories
+          ? rawSettings.categories[defaultCat.id]
+          : defaultCat.enabled;
+        categoriesList.push({
+          id: defaultCat.id,
+          name: defaultCat.name,
+          icon: defaultCat.icon,
+          keywords: [...defaultCat.keywords],
+          enabled: wasEnabled !== undefined ? wasEnabled : defaultCat.enabled,
+        });
+      }
+
+      // 2. Convert old customCategories array if it exists
+      if (rawSettings.customCategories) {
+        for (const customCat of rawSettings.customCategories) {
+          if (!categoriesList.some(c => c.id === customCat.id)) {
+            categoriesList.push({
+              id: customCat.id,
+              name: customCat.name,
+              icon: customCat.icon || '🏷️',
+              keywords: customCat.keywords || [],
+              enabled: customCat.enabled !== undefined ? customCat.enabled : true,
+            });
+          }
+        }
+      }
+    }
+
+    return {
+      ...getDefaultSettings(),
+      ...rawSettings,
+      categoriesList: categoriesList,
+      stats: {
+        ...getDefaultSettings().stats,
+        ...(rawSettings.stats || {}),
+      },
+      pomodoro: {
+        ...getDefaultSettings().pomodoro,
+        ...(rawSettings.pomodoro || {}),
       },
     };
   }
@@ -198,7 +432,9 @@ const TubeFocusUtils = (() => {
     safeQuery,
     safeQueryAll,
     getDefaultSettings,
+    migrateSettings,
     formatTime,
     uid,
+    DEFAULT_CATEGORIES,
   };
 })();
